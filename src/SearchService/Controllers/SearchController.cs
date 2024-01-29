@@ -7,9 +7,9 @@ namespace SearchService;
 [Route("api/search")]
 public class SearchController : ControllerBase
 {
-
-    [HttpGet]
     /*
+
+    [HttpGet]   
     public async Task<ActionResult<List<Item>>> SearchItems(string term, int pageNumber = 1, int pageSize =4)
     {
         var q = DB.PagedSearch<Item>();
@@ -34,7 +34,7 @@ public class SearchController : ControllerBase
     } 
     */
 
-
+   [HttpGet]   
     public async Task<ActionResult<List<Item>>> SearchItems([FromQuery] SearchParams searchParams)
     {
         var query = DB.PagedSearch<Item, Item>();
@@ -54,11 +54,11 @@ public class SearchController : ControllerBase
         query = searchParams.FilterBy switch
         {
             "finished" => query.Match(x => x.AuctionEnd < DateTime.UtcNow),
-            "endingSoon" => query.Match(x => x.AuctionEnd < DateTime.UtcNow.AddHours(6)
-                && x.AuctionEnd > DateTime.UtcNow),
-            _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow)
-        };
-
+            "endingSoon" => query.Match(x => x.AuctionEnd < DateTime.UtcNow.AddHours(6)   // ending within 6 hours
+                && x.AuctionEnd > DateTime.UtcNow),     // auction is still alive
+            _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow)  // 
+        }; 
+ 
         if (!string.IsNullOrEmpty(searchParams.Seller))
         {
             query.Match(x => x.Seller == searchParams.Seller);
